@@ -10,13 +10,13 @@ app.use(express.json());
 
 // Datos del cumpleañero y contenido sorpresa (Almacenado de forma segura en el servidor)
 const SURPRISE_CONTENT = {
-  birthdayName: "Mi Persona Favorita",
-  birthdayDate: "2026-06-30",
+  birthdayName: "Feliz cumpleaños!",
+  birthdayDate: "2026-07-04",
   secretQuestion: "¿En qué ciudad tuvimos nuestra primera cita o salida especial?",
   hintText: "Pista: Comienza con 'B' y es la capital de Colombia... 😉",
   // Canción de fondo e información del video
   backgroundMusicUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-  videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
+  videoUrl: "https://www.youtube.com/watch?v=TGtWWb9emYI&list=RDGMEMHDXYb1_DDSgDsobPsOFxpAVMTGtWWb9emYI&start_radio=1",
   isVideoEmbed: false,
   
   // Recuerdos para el Scrapbook
