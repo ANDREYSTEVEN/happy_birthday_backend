@@ -17,7 +17,7 @@ const SURPRISE_CONTENT = {
   // Canción de fondo e información del video
   backgroundMusicUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
   videoUrl: "https://www.youtube.com/watch?v=TGtWWb9emYI&list=RDGMEMHDXYb1_DDSgDsobPsOFxpAVMTGtWWb9emYI&start_radio=1",
-  isVideoEmbed: false,
+  isVideoEmbed: true,
   
   // Recuerdos para el Scrapbook
   memories: [
