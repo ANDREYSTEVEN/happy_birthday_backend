@@ -16,8 +16,8 @@ const SURPRISE_CONTENT = {
   hintText: "Pista: Comienza con 'B' y es la capital de Colombia... 😉",
   // Canción de fondo e información del video
   backgroundMusicUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-  videoUrl: "https://www.youtube.com/watch?v=TGtWWb9emYI&list=RDGMEMHDXYb1_DDSgDsobPsOFxpAVMTGtWWb9emYI&start_radio=1",
-  isVideoEmbed: false,
+  videoUrl: "https://youtu.be/KsDjIH1Won0",
+  isVideoEmbed: true,
   
   // Recuerdos para el Scrapbook
   memories: [
