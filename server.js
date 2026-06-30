@@ -1,25 +1,25 @@
 const express = require('express');
 const cors = require('cors');
+const fs = require('fs');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
 
-// Configuración de CORS para permitir solicitudes desde cualquier origen en desarrollo y producción
 app.use(cors());
 app.use(express.json());
 
-// Datos del cumpleañero y contenido sorpresa (Almacenado de forma segura en el servidor)
-const SURPRISE_CONTENT = {
-  birthdayName: "Feliz cumpleaños!",
-  birthdayDate: "2026-07-04",
+const configPath = path.join(__dirname, 'config.json');
+
+// Configuración por defecto (Back-up inicial)
+const DEFAULT_SURPRISE_CONTENT = {
+  birthdayName: "Mi Persona Favorita",
+  birthdayDate: "2026-06-30",
   secretQuestion: "¿En qué ciudad tuvimos nuestra primera cita o salida especial?",
   hintText: "Pista: Comienza con 'B' y es la capital de Colombia... 😉",
-  // Canción de fondo e información del video
   backgroundMusicUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-  videoUrl: "https://youtu.be/KsDjIH1Won0",
-  isVideoEmbed: true,
-  
-  // Recuerdos para el Scrapbook
+  videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
+  isVideoEmbed: false,
   memories: [
     {
       id: 1,
@@ -50,8 +50,6 @@ const SURPRISE_CONTENT = {
       image: "https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=600&auto=format&fit=crop"
     }
   ],
-  
-  // Cartas y deseos interactivos
   wishes: [
     {
       id: 1,
@@ -78,8 +76,6 @@ const SURPRISE_CONTENT = {
       content: "Gracias por tu paciencia, tu luz y por hacer que los días grises sean de colores. Eres una persona increíble y tenerte cerca es uno de mis mayores regalos. ¡Feliz Cumpleaños!"
     }
   ],
-  
-  // Trivia interactiva
   trivia: {
     enabled: true,
     congratulationsMessage: "¡Eres increíble! Has desbloqueado el regalo final: Una carta que escribí con todo mi corazón para ti. ❤️",
@@ -119,8 +115,33 @@ const SURPRISE_CONTENT = {
   }
 };
 
-// Respuesta esperada secreta
+let surpriseContent = DEFAULT_SURPRISE_CONTENT;
 const SECRET_ANSWER = "bogota";
+const ADMIN_PASSWORD = "admin123";
+
+// Cargar la configuración desde el archivo JSON si existe
+const loadConfig = () => {
+  if (fs.existsSync(configPath)) {
+    try {
+      const rawData = fs.readFileSync(configPath, 'utf8');
+      surpriseContent = JSON.parse(rawData);
+      console.log('Configuración cargada desde config.json');
+    } catch (err) {
+      console.error('Error parseando config.json, usando valores por defecto:', err);
+      surpriseContent = DEFAULT_SURPRISE_CONTENT;
+    }
+  } else {
+    // Si no existe, crear el archivo inicial con los datos por defecto
+    try {
+      fs.writeFileSync(configPath, JSON.stringify(DEFAULT_SURPRISE_CONTENT, null, 2), 'utf8');
+      console.log('Archivo config.json inicial creado');
+    } catch (err) {
+      console.error('Error escribiendo config.json inicial:', err);
+    }
+  }
+};
+
+loadConfig();
 
 // Helper para normalizar la entrada del usuario
 const normalizeText = (str) => {
@@ -129,19 +150,19 @@ const normalizeText = (str) => {
     .toLowerCase()
     .trim()
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "") // Elimina tildes y diéresis
-    .replace(/\s+/g, ""); // Elimina espacios en blanco
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, "");
 };
 
-// Endpoint para verificar la pregunta inicial
+// Endpoint para obtener la pregunta del login
 app.get('/api/question', (req, res) => {
   res.json({
-    question: SURPRISE_CONTENT.secretQuestion,
-    hintText: SURPRISE_CONTENT.hintText
+    question: surpriseContent.secretQuestion,
+    hintText: surpriseContent.hintText
   });
 });
 
-// Endpoint de login seguro
+// Endpoint de login de usuario
 app.post('/api/login', (req, res) => {
   const { answer } = req.body;
   
@@ -149,13 +170,43 @@ app.post('/api/login', (req, res) => {
     return res.json({
       success: true,
       message: "Acceso autorizado",
-      content: SURPRISE_CONTENT
+      content: surpriseContent
     });
   }
   
   return res.status(401).json({
     success: false,
     message: "Respuesta incorrecta. Piensa un poco más..."
+  });
+});
+
+// Endpoint para guardar la configuración del Administrador
+app.post('/api/admin/save', (req, res) => {
+  const { password, content } = req.body;
+
+  if (password === ADMIN_PASSWORD) {
+    if (!content || typeof content !== 'object') {
+      return res.status(400).json({ success: false, message: "Contenido inválido" });
+    }
+
+    surpriseContent = content;
+
+    try {
+      fs.writeFileSync(configPath, JSON.stringify(content, null, 2), 'utf8');
+      console.log('Configuración guardada en config.json exitosamente');
+      return res.json({
+        success: true,
+        message: "Configuración guardada y actualizada correctamente"
+      });
+    } catch (err) {
+      console.error('Error guardando en archivo config.json:', err);
+      return res.status(500).json({ success: false, message: "Error escribiendo en el servidor" });
+    }
+  }
+
+  return res.status(401).json({
+    success: false,
+    message: "Contraseña de administrador incorrecta"
   });
 });
 
